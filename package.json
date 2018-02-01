@@ -1,0 +1,15 @@
+{
+  "name": "esp-remote-controle",
+  "version": "1.0.0",
+  "description": "ESP8266 WiFi remote controller",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Dmitry Weiner",
+  "license": "GNU",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-htmlmin": "^4.0.0"
+  }
+}
