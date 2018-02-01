@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Remote controle main page</title>
   <style>
     html, body {
@@ -28,6 +29,12 @@
       height: 90%;
       -webkit-appearance: slider-vertical;
       margin-right: 10px;
+    }
+
+    #controls {
+      position: absolute;
+      left: 35px;
+      top: 35px;
     }
 
     /* Special styling for WebKit/Blink */
@@ -121,7 +128,7 @@
     }
   </style>
   <script type="text/javascript">
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener("DOMContentLoaded", function () {
       var currentControls = {
         steering: 0,
         power: 0,
@@ -130,7 +137,7 @@
       };
 
       var config = {
-        url: '/',
+        url: "/control",
         delay: 500
       };
 
@@ -153,10 +160,10 @@
       function sendControls() {
         sendRequest(currentControls, function(response) {
           console.log(response);
+          setTimeout(sendControls, config.delay)
         }, function (error) {
           console.warn(error);
         });
-        setTimeout(sendControls, config.delay)
       }
 
       sendControls();
@@ -165,7 +172,7 @@
 </head>
 <body>
 <div id="wrapper">
-  <div class="container">
+  <div id="controls">
     <label class="container">Head lights
       <input type="checkbox">
       <span class="checkmark"></span>
