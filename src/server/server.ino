@@ -5,6 +5,7 @@
 #include <ESP8266mDNS.h>
 #include <EEPROM.h>
 #include <ArduinoJson.h>
+#include <Servo.h>
 
 /*
  * Now the ESP8266 is in your network. You can reach it through http://192.168.x.x/ (the IP you took note of) or maybe at http://esp8266.local too.
@@ -29,10 +30,16 @@ ESP8266WebServer server(80);
 IPAddress apIP(192, 168, 4, 1);
 IPAddress netMsk(255, 255, 255, 0);
 
+Servo servo;
+
 void setup() {
   delay(1000);
-  pinMode(LED_BUILTIN, OUTPUT);     // Initialize the LED_BUILTIN pin as an output
+
+  // set up hardware
+  pinMode(LED_BUILTIN, OUTPUT);     // Here should be real led
   digitalWrite(LED_BUILTIN, HIGH);
+  servo.attach(2); // GPIO 2 = 4 on the board
+
   Serial.begin(115200);
   Serial.println();
   Serial.print("Configuring access point...");
@@ -61,7 +68,6 @@ void loop() {
   dnsServer.processNextRequest();
   //HTTP
   server.handleClient();
-  delay(10);
 }
 
 /** Handle root or redirect to captive portal */
@@ -80,11 +86,14 @@ void handleControl() {
   StaticJsonBuffer<200> newBuffer;
   JsonObject& json = newBuffer.parseObject(server.arg("plain"));
   json.printTo(Serial);
+
+  // control hardware
   if (json["headLights"] == 1) {
     digitalWrite(LED_BUILTIN, LOW);
   } else {
     digitalWrite(LED_BUILTIN, HIGH);
   }
+  servo.write(json["steering"]);
 
   String response = "{\"result\": \"success\"}";
   server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");

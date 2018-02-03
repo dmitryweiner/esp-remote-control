@@ -159,6 +159,7 @@
 
       function sendControls() {
         currentControls.headLights = document.getElementById('headlights').checked ? 1 : 0;
+        currentControls.steering = parseInt(document.getElementById('steering').value);
         sendRequest(currentControls, function(response) {
           console.log(response);
           setTimeout(sendControls, config.delay)
@@ -184,7 +185,7 @@
     </label>
   </div>
   <div id="sensors"></div>
-  <input id="steering" type="range" min="0" max="100" step="1" value="50">
+  <input id="steering" type="range" min="0" max="128" step="1" value="50">
   <input id="power" orient="vertical" type="range" min="0" max="100" step="1" value="50">
 </div>
 </body>
