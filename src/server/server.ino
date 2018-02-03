@@ -4,6 +4,7 @@
 #include <DNSServer.h>
 #include <ESP8266mDNS.h>
 #include <EEPROM.h>
+#include <ArduinoJson.h>
 
 /*
  * Now the ESP8266 is in your network. You can reach it through http://192.168.x.x/ (the IP you took note of) or maybe at http://esp8266.local too.
@@ -30,6 +31,8 @@ IPAddress netMsk(255, 255, 255, 0);
 
 void setup() {
   delay(1000);
+  pinMode(LED_BUILTIN, OUTPUT);     // Initialize the LED_BUILTIN pin as an output
+  digitalWrite(LED_BUILTIN, HIGH);
   Serial.begin(115200);
   Serial.println();
   Serial.print("Configuring access point...");
@@ -74,6 +77,15 @@ void handleRoot() {
 
 /** Wifi config page handler */
 void handleControl() {
+  StaticJsonBuffer<200> newBuffer;
+  JsonObject& json = newBuffer.parseObject(server.arg("plain"));
+  json.printTo(Serial);
+  if (json["headLights"] == 1) {
+    digitalWrite(LED_BUILTIN, LOW);
+  } else {
+    digitalWrite(LED_BUILTIN, HIGH);
+  }
+
   String response = "{\"result\": \"success\"}";
   server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
   server.sendHeader("Pragma", "no-cache");

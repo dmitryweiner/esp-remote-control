@@ -158,6 +158,7 @@
       }
 
       function sendControls() {
+        currentControls.headLights = document.getElementById('headlights').checked ? 1 : 0;
         sendRequest(currentControls, function(response) {
           console.log(response);
           setTimeout(sendControls, config.delay)
@@ -174,7 +175,7 @@
 <div id="wrapper">
   <div id="controls">
     <label class="container">Head lights
-      <input type="checkbox">
+      <input type="checkbox" id="headlights">
       <span class="checkmark"></span>
     </label>
     <label class="container">Rear lights
