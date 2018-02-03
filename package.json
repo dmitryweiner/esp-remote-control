@@ -10,6 +10,8 @@
   "license": "GNU",
   "devDependencies": {
     "gulp": "^3.9.1",
-    "gulp-htmlmin": "^4.0.0"
+    "gulp-clean": "^0.4.0",
+    "gulp-htmlmin": "^4.0.0",
+    "gulp-string-replace": "^1.0.0"
   }
 }
