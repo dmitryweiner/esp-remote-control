@@ -37,6 +37,17 @@
       top: 35px;
     }
 
+    input[type=range] {
+      /*removes default webkit styles*/
+      -webkit-appearance: none;
+    }
+
+    input[type=range]::-webkit-slider-runnable-track {
+      border: none;
+      border-radius: 3px;
+      background: #eaeaea;
+    }
+
     /* Special styling for WebKit/Blink */
     input[type=range]::-webkit-slider-thumb {
       -webkit-appearance: none;

@@ -32,6 +32,9 @@ IPAddress netMsk(255, 255, 255, 0);
 
 Servo servo;
 
+int steering = 0;
+int power = 0;
+
 void setup() {
   delay(1000);
 
@@ -108,7 +111,11 @@ void handleControl() {
   } else {
     digitalWrite(LED_BUILTIN, HIGH);
   }
-  servo.write(json["steering"]);
+
+  if (steering != json["steering"]) {
+    steering = json["steering"];
+    servo.write(steering);
+  }
 
   String response = "{\"result\": \"success\"}";
   server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
