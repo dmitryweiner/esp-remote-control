@@ -40,7 +40,11 @@ void setup() {
 
   // set up hardware
   pinMode(LED_BUILTIN, OUTPUT);     // Here should be real led
+  pinMode(D1, OUTPUT); // Motor pwm pin
+  pinMode(D3, OUTPUT); // Motor dir pin
+
   digitalWrite(LED_BUILTIN, HIGH);
+  digitalWrite(D3, LOW);
   servo.attach(2); // GPIO 2 = 4 on the board
 
   Serial.begin(115200);
@@ -115,6 +119,13 @@ void handleControl() {
   if (steering != json["steering"]) {
     steering = json["steering"];
     servo.write(steering);
+  }
+
+  // control motor
+  if (json["power"] <= 0) {
+    analogWrite(D1, 1);
+  } else {
+    analogWrite(D1, json["power"]);
   }
 
   String response = "{\"result\": \"success\"}";
