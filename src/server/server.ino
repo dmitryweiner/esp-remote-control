@@ -7,6 +7,12 @@
 #include <ArduinoJson.h>
 #include <Servo.h>
 
+#define MOTOR_PWM D1
+#define MOTOR_DIR D3
+
+#define DIR_BACK HIGH
+#define DIR_FWD LOW
+
 /*
  * Now the ESP8266 is in your network. You can reach it through http://192.168.x.x/ (the IP you took note of) or maybe at http://esp8266.local too.
  * 
@@ -40,11 +46,10 @@ void setup() {
 
   // set up hardware
   pinMode(LED_BUILTIN, OUTPUT);     // Here should be real led
-  pinMode(D1, OUTPUT); // Motor pwm pin
-  pinMode(D3, OUTPUT); // Motor dir pin
+  pinMode(MOTOR_PWM, OUTPUT); // Motor pwm pin
+  pinMode(MOTOR_DIR, OUTPUT); // Motor dir pin
 
   digitalWrite(LED_BUILTIN, HIGH);
-  digitalWrite(D3, LOW);
   servo.attach(2); // GPIO 2 = 4 on the board
 
   Serial.begin(115200);
@@ -122,10 +127,11 @@ void handleControl() {
   }
 
   // control motor
+  digitalWrite(MOTOR_DIR, DIR_FWD);
   if (json["power"] <= 0) {
-    analogWrite(D1, 1);
+    analogWrite(MOTOR_PWM, 1);
   } else {
-    analogWrite(D1, json["power"]);
+    analogWrite(MOTOR_PWM, json["power"]);
   }
 
   String response = "{\"result\": \"success\"}";
