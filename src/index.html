@@ -16,10 +16,11 @@
 
     #steering {
       position: absolute;
-      bottom: 0px;
-      width: 90%;
+      bottom: 0;
+      width: 85%;
       height: 40px;
       margin-bottom: 10px;
+      margin-left: 10px;
     }
 
     #power {
@@ -140,21 +141,16 @@
   </style>
   <script type="text/javascript">
     document.addEventListener("DOMContentLoaded", function () {
-      var currentControls = {
-        steering: 0,
-        power: 0,
-        headLights: 0,
-        rearLights: 0
-      };
-
       var config = {
-        url: "/control",
-        delay: 500
+        URL: "/control",
+        DELAY: 200,
+        MAX_STEERING: 100, // TODO: must be calibrated on real device
+        MIN_STEERING: 50 // TODO: must be calibrated on real device
       };
 
       function sendRequest(data, callbackSuccess, callbackError) {
         var xmlhttp = new XMLHttpRequest();
-        xmlhttp.open("POST", config.url);
+        xmlhttp.open("POST", config.URL);
         xmlhttp.setRequestHeader("Content-Type", "application/json");
         xmlhttp.send(JSON.stringify(data));
         xmlhttp.onreadystatechange = function () {
@@ -168,13 +164,25 @@
         };
       }
 
+      function buildRequestData() {
+        var isReverseSteering = document.getElementById('reverseSteering').checked;
+        var rawSteering  = parseInt(document.getElementById('steering').value);
+        var steering = isReverseSteering ?
+          config.MAX_STEERING + config.MIN_STEERING - rawSteering :
+          rawSteering;
+
+        return {
+          steering: steering,
+          power: parseInt(document.getElementById('power').value),
+          headLights: document.getElementById('headlights').checked ? 1 : 0,
+          rearLights: 0
+        }
+      }
+
       function sendControls() {
-        currentControls.headLights = document.getElementById('headlights').checked ? 1 : 0;
-        currentControls.steering = parseInt(document.getElementById('steering').value);
-        currentControls.power = parseInt(document.getElementById('power').value);
-        sendRequest(currentControls, function(response) {
+        sendRequest(buildRequestData(), function(response) {
           console.log(response);
-          setTimeout(sendControls, config.delay)
+          setTimeout(sendControls, config.DELAY)
         }, function (error) {
           console.warn(error);
         });
@@ -195,10 +203,14 @@
       <input type="checkbox">
       <span class="checkmark"></span>
     </label>
+    <label class="container">Reversed steering
+      <input id="reverseSteering" type="checkbox" checked="checked">
+      <span class="checkmark"></span>
+    </label>
   </div>
   <div id="sensors"></div>
-  <input id="steering" type="range" min="0" max="128" step="1" value="50">
-  <input id="power" orient="vertical" type="range" min="1" max="1023" step="10" value="1">
+  <input id="steering" type="range" min="50" max="100" step="1" value="75">
+  <input id="power" orient="vertical" type="range" min="-1023" max="1023" step="10" value="0">
 </div>
 </body>
 </html>

@@ -111,6 +111,7 @@ void handleRoot() {
 /** Wifi config page handler */
 void handleControl() {
   StaticJsonBuffer<200> newBuffer;
+  int power;
   JsonObject& json = newBuffer.parseObject(server.arg("plain"));
   json.printTo(Serial);
 
@@ -127,11 +128,13 @@ void handleControl() {
   }
 
   // control motor
-  digitalWrite(MOTOR_DIR, DIR_FWD);
-  if (json["power"] <= 0) {
-    analogWrite(MOTOR_PWM, 1);
+  power = json["power"];
+  if (power < 0) {
+    digitalWrite(MOTOR_DIR, DIR_BACK);
+    analogWrite(MOTOR_PWM, abs(power));
   } else {
-    analogWrite(MOTOR_PWM, json["power"]);
+    digitalWrite(MOTOR_DIR, DIR_FWD);
+    analogWrite(MOTOR_PWM, power);
   }
 
   String response = "{\"result\": \"success\"}";
