@@ -40,6 +40,7 @@ Servo servo;
 
 int steering = 0;
 int power = 0;
+int token = 0;
 
 void setup() {
   delay(1000);
@@ -69,6 +70,7 @@ void setup() {
   /* Setup web pages: root, wifi config pages, SO captive portal detectors and not found. */
   server.on("/", handleRoot);
   server.on("/control", handleControl);
+  server.on("/token", handleToken);
   server.onNotFound ( handleNotFound );
   server.begin(); // Web server start
   Serial.println("HTTP server started");
@@ -108,43 +110,68 @@ void handleRoot() {
   Serial.println("Root page served");
 }
 
-/** Wifi config page handler */
 void handleControl() {
   StaticJsonBuffer<200> newBuffer;
   int power;
+  String response = "{\"result\": \"success\"}";
+  int responseCode = 200;
   JsonObject& json = newBuffer.parseObject(server.arg("plain"));
+
   json.printTo(Serial);
 
-  // control hardware
-  if (json["headLights"] == 1) {
-    digitalWrite(LED_BUILTIN, LOW);
+  if (json["token"] == NULL || json["token"] != token) {
+      response = "{\"result\": \"token error\"}";
+      responseCode = 401;
   } else {
-    digitalWrite(LED_BUILTIN, HIGH);
+
+    // control light
+    if (json["headLights"] == 1) {
+      digitalWrite(LED_BUILTIN, LOW);
+    } else {
+      digitalWrite(LED_BUILTIN, HIGH);
+    }
+
+    // steering
+    if (steering != json["steering"]) {
+      steering = json["steering"];
+      servo.write(steering);
+    }
+
+    // control motor
+    power = json["power"];
+    if (power < 0) {
+      digitalWrite(MOTOR_DIR, DIR_BACK);
+      analogWrite(MOTOR_PWM, abs(power));
+    } else {
+      digitalWrite(MOTOR_DIR, DIR_FWD);
+      analogWrite(MOTOR_PWM, power);
+    }
   }
 
-  if (steering != json["steering"]) {
-    steering = json["steering"];
-    servo.write(steering);
-  }
-
-  // control motor
-  power = json["power"];
-  if (power < 0) {
-    digitalWrite(MOTOR_DIR, DIR_BACK);
-    analogWrite(MOTOR_PWM, abs(power));
-  } else {
-    digitalWrite(MOTOR_DIR, DIR_FWD);
-    analogWrite(MOTOR_PWM, power);
-  }
-
-  String response = "{\"result\": \"success\"}";
   server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
   server.sendHeader("Pragma", "no-cache");
   server.sendHeader("Expires", "-1");
   server.setContentLength(response.length());
-  server.send(200, "text/html", response);
+  server.send(responseCode, "text/html", response);
   server.sendContent(response);
   Serial.println("Control page served");
+}
+
+void handleToken() {
+  StaticJsonBuffer<200> newBuffer;
+  JsonObject& json = newBuffer.parseObject(server.arg("plain"));
+  json.printTo(Serial);
+
+  if (json["token"]) {
+    token = json["token"];
+  }
+
+  String response = "";
+  server.setContentLength(response.length());
+  server.send(200, "text/html", response);
+  server.sendContent(response);
+  Serial.print("Token set to: ");
+  Serial.println(token);
 }
 
 void handleNotFound() {
