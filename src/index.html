@@ -23,7 +23,8 @@
 
     #controlField {
       position: absolute;
-      top: 280px;
+      top: 250px;
+      margin-bottom: 50px;
       bottom: 0;
       width: 100%;
       background-color: lightgrey;
@@ -39,41 +40,6 @@
       height: 3em;
       z-index: 10;
       border-radius: 1em;
-    }
-
-    input[type=range] {
-      /*removes default webkit styles*/
-      -webkit-appearance: none;
-    }
-
-    input[type=range]::-webkit-slider-runnable-track {
-      border: none;
-      border-radius: 3px;
-      background: #eaeaea;
-    }
-
-    /* Special styling for WebKit/Blink */
-    input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      border: 1px solid #000000;
-      height: 40px;
-      width: 40px;
-      border-radius: 3px;
-      background: #ffffff;
-      cursor: pointer;
-      margin-top: -14px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
-      box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d; /* Add cool effects to your sliders! */
-    }
-
-    /* All the same stuff for Firefox */
-    input[type=range]::-moz-range-thumb {
-      box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-      border: 1px solid #000000;
-      height: 40px;
-      width: 40px;
-      border-radius: 3px;
-      background: #ffffff;
-      cursor: pointer;
     }
 
     /* The container */
@@ -194,6 +160,9 @@
           x = x > 0 ? x : 0;
           y = y > 0 ? y : 0;
 
+          x = x > controlField.clientWidth ? controlField.clientWidth : x;
+          y = y > controlField.clientHeight ? controlField.clientHeight : y;
+
           setKnobPosition(x, y);
         }
       }
@@ -255,8 +224,8 @@
           token: token,
           steering: steering,
           power: power,
-          headLights: document.getElementById('headlights').checked ? 1 : 0,
-          rearLights: 0
+          headLights: document.getElementById('headLights').checked ? 1 : 0,
+          rearLights: document.getElementById('rearLights').checked ? 1 : 0
         }
       }
 
@@ -288,11 +257,11 @@
 <div id="wrapper">
   <div id="controls">
     <label class="container">Head lights
-      <input type="checkbox" id="headlights">
+      <input type="checkbox" id="headLights">
       <span class="checkmark"></span>
     </label>
     <label class="container">Rear lights
-      <input type="checkbox">
+      <input type="checkbox" id="rearLights">
       <span class="checkmark"></span>
     </label>
   </div>

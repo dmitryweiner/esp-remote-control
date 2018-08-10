@@ -13,6 +13,11 @@
 #define DIR_BACK HIGH
 #define DIR_FWD LOW
 
+#define HEAD_LIGHTS D7
+#define REAR_LIGHTS D8
+
+#define MAX_DISCONNECT_TIME 5000 // 5 sec
+
 /*
  * Now the ESP8266 is in your network. You can reach it through http://192.168.x.x/ (the IP you took note of) or maybe at http://esp8266.local too.
  * 
@@ -41,22 +46,30 @@ Servo servo;
 int steering = 0;
 int power = 0;
 int token = 0;
+int lastConnectTime = 0;
 
 void setup() {
+  lastConnectTime = millis();
   delay(1000);
 
   // set up hardware
-  pinMode(LED_BUILTIN, OUTPUT);     // Here should be real led
+
+  // light
+  pinMode(HEAD_LIGHTS, OUTPUT);
+  pinMode(REAR_LIGHTS, OUTPUT);
+  digitalWrite(HEAD_LIGHTS, LOW);
+  digitalWrite(REAR_LIGHTS, LOW);
+
+  // motor
   pinMode(MOTOR_PWM, OUTPUT); // Motor pwm pin
   pinMode(MOTOR_DIR, OUTPUT); // Motor dir pin
 
-  digitalWrite(LED_BUILTIN, HIGH);
+  // steering
   servo.attach(2); // GPIO 2 = 4 on the board
 
   Serial.begin(115200);
   Serial.println();
   Serial.print("Configuring access point...");
-  /* You can remove the password parameter if you want the AP to be open. */
   WiFi.softAPConfig(apIP, apIP, netMsk);
   WiFi.softAP(softAP_ssid);
   delay(500); // Without delay I've seen the IP address blank
@@ -82,6 +95,11 @@ void loop() {
   dnsServer.processNextRequest();
   //HTTP
   server.handleClient();
+
+  // turn off motor when disconnected
+  if (millis() - lastConnectTime > MAX_DISCONNECT_TIME) {
+    power = 0;
+  }
 }
 
 /** Redirect to captive portal if we got a request for another domain. Return true in that case so the page handler do not try to handle the request again. */
@@ -113,6 +131,9 @@ void handleRoot() {
 void handleControl() {
   StaticJsonBuffer<200> newBuffer;
   int power;
+
+  lastConnectTime = millis();
+
   String response = "{\"result\": \"success\"}";
   int responseCode = 200;
   JsonObject& json = newBuffer.parseObject(server.arg("plain"));
@@ -126,9 +147,15 @@ void handleControl() {
 
     // control light
     if (json["headLights"] == 1) {
-      digitalWrite(LED_BUILTIN, LOW);
+      digitalWrite(HEAD_LIGHTS, HIGH);
     } else {
-      digitalWrite(LED_BUILTIN, HIGH);
+      digitalWrite(HEAD_LIGHTS, LOW);
+    }
+
+    if (json["rearLights"] == 1) {
+      digitalWrite(REAR_LIGHTS, HIGH);
+    } else {
+      digitalWrite(REAR_LIGHTS, LOW);
     }
 
     // steering
