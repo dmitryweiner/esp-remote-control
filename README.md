@@ -1,16 +1,29 @@
-# esp-remote-control
-Using ESP8266 chip remote control vehicle (or something else) via WiFi. This chip provides captive portal showing basic controls.
+# ESP remote control
+
+Controlling a vehicle with ESP8266 chip via WiFi.
+
+This chip provides a [captive portal](https://www.hackster.io/rayburne/esp8266-captive-portal-5798ff) demonstrating basic controls.
 
 ## Prerequisites
+
 * Arduino IDE
 * Node.js
 * Node.js package manager (npm)
 
 ## Before you start
-> npm i
 
-## To compile project
-Run command:
-> node ./node_modules/gulp/bin/gulp.js
+Install node dependencies:
 
-Here will be the result (arduino project): dist/server/server.ino
+```bash
+npm install
+```
+
+## Compiling the project
+
+To compile the arduino project, run:
+
+```bash
+node ./node_modules/gulp/bin/gulp.js
+```
+
+The resulting project will be in  `dist/server/server.ino`.
